@@ -226,8 +226,15 @@
       secondary_action_color: '#ec4899'
     };
 
-    // Candidate data with emojis and colors - using fixed seed for consistent colors
+    // Candidate data with emojis and colors - using fixed ID-based mapping for consistent colors
+    const candidateStyleCache = {};
+    
     function getCandidateStyle(candidateId) {
+      // Return cached style if already generated
+      if (candidateStyleCache[candidateId]) {
+        return candidateStyleCache[candidateId];
+      }
+      
       const styles = [
         { emoji: '👤', gradient: 'from-blue-500 to-cyan-400' },
         { emoji: '👤', gradient: 'from-emerald-500 to-teal-400' },
@@ -254,7 +261,12 @@
       
       // Use candidate ID to always get the same style
       const index = (parseInt(candidateId) - 1) % styles.length;
-      return styles[index];
+      const style = styles[index];
+      
+      // Cache the style for this candidate ID
+      candidateStyleCache[candidateId] = style;
+      
+      return style;
     }
 
     // State
@@ -786,7 +798,7 @@
               <span class="text-white/80 text-xs font-medium">Calon ${candidate.id}</span>
             </div>
             <div class="p-3 text-center">
-              <h3 class="text-sm font-bold text-gray-800 mb-2 truncate" title="${candidate.name}">${candidate.name}</h3>
+              <h3 class="text-xs font-bold text-gray-800 mb-2 truncate" title="${candidate.name}">${candidate.name}</h3>
               ${hasVotedThis ? `
                 <button 
                   class="w-full py-2 bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-md cursor-default"
@@ -1337,5 +1349,5 @@
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84f68961fb35f2',t:'MTc3MDE1MzUzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c850546453640c5',t:'MTc3MDE1NDEzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
