@@ -50,8 +50,21 @@
      <h1 id="main-title" class="text-3xl md:text-4xl font-extrabold text-white drop-shadow-lg">Pemilihan Ketua</h1>
     </div>
     <p class="text-purple-200 text-lg">Pilih calon favoritmu!</p>
-   </header><!-- Voting Cards -->
-   <div class="max-w-6xl mx-auto mb-10">
+   </header><!-- Voter Registration Card -->
+   <div id="voter-registration-card" class="max-w-md mx-auto mb-8 bg-white/95 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-xl">
+    <div class="text-center mb-4"><span class="text-5xl mb-3 block">👋</span>
+     <h2 class="text-2xl font-bold text-gray-800 mb-2">Selamat Datang!</h2>
+     <p class="text-gray-600">Masukkan nama Anda untuk mulai voting</p>
+    </div>
+    <form id="registration-form" onsubmit="handleRegistration(event)"><label for="registration-name-input" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label> <input type="text" id="registration-name-input" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors mb-4" placeholder="Masukkan nama Anda" required maxlength="50"> <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-semibold transition-all shadow-lg"> 🗳️ Mulai Voting </button>
+    </form>
+   </div><!-- Voting Cards -->
+   <div id="voting-section" class="max-w-6xl mx-auto mb-10 hidden">
+    <div class="bg-white/20 backdrop-blur-md rounded-xl p-4 mb-6 border border-white/30">
+     <div class="flex justify-between items-center">
+      <p class="text-white font-semibold">Voting sebagai: <span id="current-voter-name" class="text-yellow-300"></span></p><button onclick="handleLogout()" class="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg font-medium transition-all text-sm"> 🚪 Keluar </button>
+     </div>
+    </div>
     <div id="voting-info"></div>
     <div id="candidates-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"><!-- Candidate cards will be rendered here -->
     </div>
@@ -88,18 +101,6 @@
       </div>
      </form>
     </div>
-   </div><!-- Voter Name Modal -->
-   <div id="voter-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden items-center justify-center">
-    <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 w-full">
-     <div class="text-center mb-4"><span class="text-4xl mb-2 block">🗳️</span>
-      <h3 class="text-xl font-bold text-gray-800">Masukkan Nama Anda</h3>
-      <p class="text-gray-600 text-sm mt-1">Voting untuk: <span id="voting-for-name" class="font-semibold text-purple-600"></span></p>
-     </div>
-     <form id="voter-form" onsubmit="handleVoterSubmit(event)"><label for="voter-name-input" class="block text-sm font-medium text-gray-700 mb-2">Nama Pemilih</label> <input type="text" id="voter-name-input" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors" placeholder="Masukkan nama Anda" required maxlength="50">
-      <div class="flex gap-3 mt-6"><button type="button" onclick="hideVoterNameModal()" class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-all"> Batal </button> <button type="submit" class="flex-1 px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-all"> Vote Sekarang </button>
-      </div>
-     </form>
-    </div>
    </div><!-- Confirm Reset Modal -->
    <div id="confirm-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden items-center justify-center">
     <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 text-center"><span class="text-5xl mb-4 block">⚠️</span>
@@ -117,7 +118,7 @@
      </div><!-- Edit Title Section -->
      <div class="mb-6 pb-6 border-b border-gray-200">
       <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>📝</span> Judul Voting</h4>
-      <form id="title-form" onsubmit="handleTitleUpdate(event)"><label for="title-input" class="block text-sm font-medium text-gray-700 mb-2">Judul</label> <input type="text" id="title-input" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors mb-3" placeholder="Masukkan judul voting" required maxlength="100"> <button type="submit" class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-all"> 💾 Simpan Judul </button>
+      <form id="title-form" onsubmit="handleTitleUpdate(event)"><label for="title-input" class="block text-sm font-medium text-gray-700 mb-2">Judul</label> <input type="text" id="title-input" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors mb-3" placeholder="Masukkan judul voting" required maxlength="100"> <button type="submit" class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-all"> ����� Simpan Judul </button>
       </form>
      </div><!-- Password Settings Section -->
      <div class="mb-6 pb-6 border-b border-gray-200">
@@ -213,6 +214,8 @@
     let deviceId = '';
     let passwordRecords = [];
     let isResultsVisible = false;
+    let currentVoterName = '';
+    let isRegistered = false;
 
     // Generate or retrieve device ID
     function getDeviceId() {
@@ -222,6 +225,63 @@
         localStorage.setItem('voting_device_id', id);
       }
       return id;
+    }
+
+    // Handle registration
+    function handleRegistration(event) {
+      event.preventDefault();
+      const input = document.getElementById('registration-name-input');
+      const name = input.value.trim();
+      
+      if (!name) {
+        showToast('Nama tidak boleh kosong!', 'warning');
+        return;
+      }
+
+      currentVoterName = name;
+      isRegistered = true;
+      localStorage.setItem('current_voter_name', name);
+      
+      showVotingSection();
+      showToast(`Selamat datang, ${name}!`);
+    }
+
+    // Show voting section
+    function showVotingSection() {
+      const registrationCard = document.getElementById('voter-registration-card');
+      const votingSection = document.getElementById('voting-section');
+      const currentVoterNameEl = document.getElementById('current-voter-name');
+      
+      registrationCard.classList.add('hidden');
+      votingSection.classList.remove('hidden');
+      currentVoterNameEl.textContent = currentVoterName;
+    }
+
+    // Handle logout
+    function handleLogout() {
+      currentVoterName = '';
+      isRegistered = false;
+      localStorage.removeItem('current_voter_name');
+      
+      const registrationCard = document.getElementById('voter-registration-card');
+      const votingSection = document.getElementById('voting-section');
+      const registrationInput = document.getElementById('registration-name-input');
+      
+      votingSection.classList.add('hidden');
+      registrationCard.classList.remove('hidden');
+      registrationInput.value = '';
+      
+      showToast('Anda telah keluar dari sesi voting');
+    }
+
+    // Check saved registration
+    function checkSavedRegistration() {
+      const savedName = localStorage.getItem('current_voter_name');
+      if (savedName) {
+        currentVoterName = savedName;
+        isRegistered = true;
+        showVotingSection();
+      }
     }
 
     // Check if device has voted
@@ -706,6 +766,11 @@
 
     // Handle vote
     async function handleVote(candidateId) {
+      if (!isRegistered || !currentVoterName) {
+        showToast('Silakan masukkan nama terlebih dahulu!', 'warning');
+        return;
+      }
+
       const allowMultiple = config.allow_multiple_votes !== undefined ? config.allow_multiple_votes : defaultConfig.allow_multiple_votes;
       const remainingChoices = getRemainingChoices();
       
@@ -729,52 +794,16 @@
         return;
       }
 
-      showVoterNameModal(candidateId);
-    }
-
-    // Show voter name modal
-    function showVoterNameModal(candidateId) {
+      // Vote directly using current voter name
       currentVotingCandidateId = candidateId;
-      const input = document.getElementById('voter-name-input');
-      input.value = '';
-      
-      const modal = document.getElementById('voter-modal');
-      const candidateName = document.getElementById('voting-for-name');
-      candidateName.textContent = getCandidateName(candidateId);
-      
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      
-      setTimeout(() => input.focus(), 100);
+      await submitVote();
     }
 
-    // Hide voter name modal
-    function hideVoterNameModal() {
-      const modal = document.getElementById('voter-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      currentVotingCandidateId = null;
-    }
+    // Submit vote
+    async function submitVote() {
+      if (!currentVotingCandidateId || !currentVoterName) return;
 
-    // Handle voter submit
-    async function handleVoterSubmit(event) {
-      event.preventDefault();
-      
-      if (!currentVotingCandidateId) return;
-      
-      const input = document.getElementById('voter-name-input');
-      const voterName = input.value.trim();
-      
-      if (!voterName) {
-        showToast('Nama pemilih tidak boleh kosong!', 'warning');
-        return;
-      }
-
-      const submitBtn = event.target.querySelector('button[type="submit"]');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '⏳ Memproses...';
-
-      const voterData = deviceId + '|' + voterName;
+      const voterData = deviceId + '|' + currentVoterName;
 
       const result = await window.dataSdk.create({
         candidate_id: currentVotingCandidateId,
@@ -784,14 +813,12 @@
 
       if (result.isOk) {
         hasVoted = true;
-        showToast(`Terima kasih ${voterName}! Suara untuk ${getCandidateName(currentVotingCandidateId)} berhasil dicatat.`);
-        hideVoterNameModal();
+        showToast(`Suara untuk ${getCandidateName(currentVotingCandidateId)} berhasil dicatat!`);
       } else {
         showToast('Gagal mencatat suara. Silakan coba lagi.', 'error');
       }
 
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Vote Sekarang';
+      currentVotingCandidateId = null;
     }
 
     // Show confirm modal
@@ -1053,8 +1080,20 @@
       }
 
       localStorage.removeItem('voting_device_id');
+      localStorage.removeItem('current_voter_name');
       hasVoted = false;
       deviceId = getDeviceId();
+      currentVoterName = '';
+      isRegistered = false;
+      
+      // Reset to registration card
+      const registrationCard = document.getElementById('voter-registration-card');
+      const votingSection = document.getElementById('voting-section');
+      const registrationInput = document.getElementById('registration-name-input');
+      
+      votingSection.classList.add('hidden');
+      registrationCard.classList.remove('hidden');
+      registrationInput.value = '';
 
       showToast('Voting telah direset!');
       isResetting = false;
@@ -1065,9 +1104,10 @@
     // Initial render
     deviceId = getDeviceId();
     loadCandidates();
+    checkSavedRegistration();
     renderCandidates();
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c8477f2f3c38beb',t:'MTc3MDE0ODM0NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c8485e0f50cfdc0',t:'MTc3MDE0ODkxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
