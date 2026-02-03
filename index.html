@@ -43,7 +43,7 @@
  </head>
  <body class="h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 overflow-auto">
   <div id="app" class="w-full min-h-full p-6 md:p-8"><!-- Header -->
-   <header class="text-center mb-8 fade-in relative">
+   <header class="mb-8 fade-in relative">
     <div class="absolute top-0 right-0 md:right-4 flex gap-2"><button onclick="showResultsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">📊</span> <span class="hidden sm:inline">Lihat Hasil</span> </button> <button onclick="showSettingsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">⚙️</span> <span class="hidden sm:inline">Pengaturan</span> </button>
     </div>
     <div class="inline-flex items-center gap-3 mb-4"><span class="text-4xl">�����️</span>
@@ -226,30 +226,36 @@
       secondary_action_color: '#ec4899'
     };
 
-    // Candidate data with emojis and colors
-    const candidateStyles = [
-      { emoji: '👤', gradient: 'from-blue-500 to-cyan-400' },
-      { emoji: '👤', gradient: 'from-emerald-500 to-teal-400' },
-      { emoji: '👤', gradient: 'from-orange-500 to-amber-400' },
-      { emoji: '👤', gradient: 'from-pink-500 to-rose-400' },
-      { emoji: '👤', gradient: 'from-violet-500 to-purple-400' },
-      { emoji: '👤', gradient: 'from-red-500 to-pink-400' },
-      { emoji: '👤', gradient: 'from-yellow-500 to-orange-400' },
-      { emoji: '👤', gradient: 'from-teal-500 to-cyan-400' },
-      { emoji: '👤', gradient: 'from-indigo-500 to-blue-400' },
-      { emoji: '👤', gradient: 'from-lime-500 to-green-400' },
-      { emoji: '👤', gradient: 'from-fuchsia-500 to-pink-400' },
-      { emoji: '👤', gradient: 'from-sky-500 to-blue-400' },
-      { emoji: '👤', gradient: 'from-green-500 to-emerald-400' },
-      { emoji: '👤', gradient: 'from-amber-500 to-yellow-400' },
-      { emoji: '👤', gradient: 'from-rose-500 to-red-400' },
-      { emoji: '👤', gradient: 'from-purple-500 to-violet-400' },
-      { emoji: '👤', gradient: 'from-cyan-500 to-teal-400' },
-      { emoji: '👤', gradient: 'from-blue-600 to-indigo-400' },
-      { emoji: '👤', gradient: 'from-emerald-600 to-green-400' },
-      { emoji: '👤', gradient: 'from-orange-600 to-red-400' },
-      { emoji: '👤', gradient: 'from-pink-600 to-fuchsia-400' }
-    ];
+    // Candidate data with emojis and colors - using fixed seed for consistent colors
+    function getCandidateStyle(candidateId) {
+      const styles = [
+        { emoji: '👤', gradient: 'from-blue-500 to-cyan-400' },
+        { emoji: '👤', gradient: 'from-emerald-500 to-teal-400' },
+        { emoji: '👤', gradient: 'from-orange-500 to-amber-400' },
+        { emoji: '👤', gradient: 'from-pink-500 to-rose-400' },
+        { emoji: '👤', gradient: 'from-violet-500 to-purple-400' },
+        { emoji: '👤', gradient: 'from-red-500 to-pink-400' },
+        { emoji: '👤', gradient: 'from-yellow-500 to-orange-400' },
+        { emoji: '👤', gradient: 'from-teal-500 to-cyan-400' },
+        { emoji: '👤', gradient: 'from-indigo-500 to-blue-400' },
+        { emoji: '👤', gradient: 'from-lime-500 to-green-400' },
+        { emoji: '👤', gradient: 'from-fuchsia-500 to-pink-400' },
+        { emoji: '👤', gradient: 'from-sky-500 to-blue-400' },
+        { emoji: '👤', gradient: 'from-green-500 to-emerald-400' },
+        { emoji: '👤', gradient: 'from-amber-500 to-yellow-400' },
+        { emoji: '👤', gradient: 'from-rose-500 to-red-400' },
+        { emoji: '👤', gradient: 'from-purple-500 to-violet-400' },
+        { emoji: '👤', gradient: 'from-cyan-500 to-teal-400' },
+        { emoji: '👤', gradient: 'from-blue-600 to-indigo-400' },
+        { emoji: '👤', gradient: 'from-emerald-600 to-green-400' },
+        { emoji: '👤', gradient: 'from-orange-600 to-red-400' },
+        { emoji: '👤', gradient: 'from-pink-600 to-fuchsia-400' }
+      ];
+      
+      // Use candidate ID to always get the same style
+      const index = (parseInt(candidateId) - 1) % styles.length;
+      return styles[index];
+    }
 
     // State
     let votes = [];
@@ -767,7 +773,7 @@
       const allowMultiple = config.allow_multiple_votes !== undefined ? config.allow_multiple_votes : defaultConfig.allow_multiple_votes;
 
       grid.innerHTML = candidates.map((candidate, index) => {
-        const style = candidateStyles[index % candidateStyles.length];
+        const style = getCandidateStyle(candidate.id);
         const hasVotedThis = hasVotedForCandidate(candidate.id);
         const canVote = remainingChoices > 0 && !hasVotedThis;
         
@@ -841,7 +847,7 @@
       container.innerHTML = sortedCandidates.map((candidate, index) => {
         const count = voteCounts[candidate.id] || 0;
         const percentage = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
-        const style = candidateStyles[parseInt(candidate.id) - 1] || candidateStyles[0];
+        const style = getCandidateStyle(candidate.id);
         const isLeading = index === 0 && count > 0;
         
         const votersForCandidate = votes.filter(v => v.candidate_id === candidate.id);
@@ -1331,5 +1337,5 @@
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84b68d05046d3b',t:'MTc3MDE1MDkwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84de3427d90d78',t:'MTc3MDE1MjUzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
