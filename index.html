@@ -162,7 +162,7 @@
    </div><!-- Debug Panel -->
    <div id="debug-panel" class="fixed top-4 right-4 bg-black bg-opacity-90 text-white p-4 rounded-lg text-xs max-w-sm max-h-96 overflow-y-auto hidden z-50">
     <div class="flex items-center justify-between mb-2">
-     <h3 class="font-bold text-sm">🔍 Debug Info</h3><button onclick="document.getElementById('debug-panel').classList.add('hidden')" class="text-white hover:text-gray-300">✕</button>
+     <h3 class="font-bold text-sm">🔍 Debug Info</h3><button onclick="document.getElementById('debug-panel').classList.add('hidden')" class="text-white hover:text-gray-300">��</button>
     </div>
     <div id="debug-messages" class="space-y-1 font-mono text-xs"></div>
    </div><button id="show-debug" class="fixed top-4 right-4 bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-bold z-40" onclick="document.getElementById('debug-panel').classList.remove('hidden'); this.style.display='none'"> 🐛 DEBUG </button>
@@ -863,6 +863,42 @@
       renderCandidates();
     }
 
+    async function seedInitialCandidates() {
+      // Kandidat awal yang akan ditambahkan otomatis
+      const initialCandidates = [
+        { name: 'Budi Santoso' },
+        { name: 'Siti Rahma' },
+        { name: 'Ahmad Hidayat' }
+      ];
+
+      debugLog('🌱 Menambahkan kandidat awal...', 'info');
+
+      for (const candidate of initialCandidates) {
+        const newCandidate = {
+          id: `initial-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          name: candidate.name,
+          votes: 0,
+          created_at: new Date().toISOString(),
+          voter_names: ''
+        };
+
+        debugLog(`🔵 Menambahkan: ${candidate.name}`, 'info');
+        const result = await window.dataSdk.create(newCandidate);
+
+        if (result.isOk) {
+          debugLog(`✅ ${candidate.name} berhasil ditambahkan`, 'success');
+        } else {
+          debugLog(`❌ Gagal menambahkan ${candidate.name}: ${JSON.stringify(result.error)}`, 'error');
+        }
+
+        // Delay kecil untuk menghindari konflik
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      localStorage.setItem('candidatesSeeded', 'true');
+      debugLog('✅ Semua kandidat awal berhasil ditambahkan!', 'success');
+    }
+
     async function init() {
       debugLog('🚀 Memulai inisialisasi aplikasi', 'info');
       loadPreferences();
@@ -944,6 +980,14 @@
         debugLog(`❌ Error: ${JSON.stringify(initResult.error)}`, 'error');
       } else {
         debugLog('✅ Data SDK berhasil diinisialisasi', 'success');
+        
+        // Tambahkan kandidat awal hanya jika belum pernah ditambahkan
+        const hasSeeded = localStorage.getItem('candidatesSeeded');
+        if (!hasSeeded && candidates.length === 0) {
+          await seedInitialCandidates();
+        } else {
+          debugLog('ℹ️ Kandidat awal sudah ada, skip seeding', 'info');
+        }
       }
       
       debugLog('✅ Aplikasi siap digunakan!', 'success');
@@ -951,5 +995,5 @@
 
     init();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c8183dce10c9c33',t:'MTc3MDExNzM3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c818a23304aeba1',t:'MTc3MDExNzYzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
