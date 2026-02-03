@@ -43,13 +43,13 @@
  </head>
  <body class="h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 overflow-auto">
   <div id="app" class="w-full min-h-full p-6 md:p-8"><!-- Header -->
-   <header class="mb-8 fade-in relative">
-    <div class="absolute top-0 right-0 md:right-4 flex gap-2"><button onclick="showResultsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">📊</span> <span class="hidden sm:inline">Lihat Hasil</span> </button> <button onclick="showSettingsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">⚙️</span> <span class="hidden sm:inline">Pengaturan</span> </button>
-    </div>
-    <div class="inline-flex items-center gap-3 mb-4"><span class="text-4xl">�����️</span>
+   <header class="mb-8 fade-in">
+    <div class="inline-flex items-center gap-3 mb-4"><span class="text-4xl">🗳️</span>
      <h1 id="main-title" class="text-3xl md:text-4xl font-extrabold text-white drop-shadow-lg">Pemilihan Ketua</h1>
     </div>
-    <p class="text-purple-200 text-lg">Pilih calon favoritmu!</p>
+    <p class="text-purple-200 text-lg mb-4">Pilih calon favoritmu!</p>
+    <div class="flex gap-2"><button onclick="showResultsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">📊</span> <span class="hidden sm:inline">Lihat Hasil</span> </button> <button onclick="showSettingsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">⚙️</span> <span class="hidden sm:inline">Pengaturan</span> </button>
+    </div>
    </header><!-- Voter Registration Card -->
    <div id="voter-registration-card" class="max-w-md mx-auto mb-8 bg-white/95 backdrop-blur-md rounded-2xl p-6 border border-white/30 shadow-xl">
     <div class="text-center mb-4"><span class="text-5xl mb-3 block">👋</span>
@@ -66,7 +66,7 @@
      </div>
     </div>
     <div id="voting-info"></div>
-    <div id="candidates-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"><!-- Candidate cards will be rendered here -->
+    <div id="candidates-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"><!-- Candidate cards will be rendered here -->
     </div>
    </div><!-- Results Section -->
    <div id="results-section" class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 fade-in hidden" style="animation-delay: 0.2s">
@@ -82,7 +82,7 @@
    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div><!-- Settings Password Modal -->
    <div id="settings-password-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden items-center justify-center">
     <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 w-full">
-     <div class="text-center mb-4"><span class="text-4xl mb-2 block">��</span>
+     <div class="text-center mb-4"><span class="text-4xl mb-2 block">🔒</span>
       <h3 class="text-xl font-bold text-gray-800">Password Pengaturan</h3>
       <p class="text-gray-600 text-sm mt-1">Masukkan password untuk mengakses pengaturan</p>
      </div>
@@ -135,11 +135,11 @@
      </div><!-- Edit Title Section -->
      <div class="mb-6 pb-6 border-b border-gray-200">
       <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>📝</span> Judul Voting</h4>
-      <form id="title-form" onsubmit="handleTitleUpdate(event)"><label for="title-input" class="block text-sm font-medium text-gray-700 mb-2">Judul</label> <input type="text" id="title-input" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors mb-3" placeholder="Masukkan judul voting" required maxlength="100"> <button type="submit" class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-all"> ����� Simpan Judul </button>
+      <form id="title-form" onsubmit="handleTitleUpdate(event)"><label for="title-input" class="block text-sm font-medium text-gray-700 mb-2">Judul</label> <input type="text" id="title-input" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors mb-3" placeholder="Masukkan judul voting" required maxlength="100"> <button type="submit" class="w-full px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium transition-all"> 💾 Simpan Judul </button>
       </form>
      </div><!-- Password Settings Section -->
      <div class="mb-6 pb-6 border-b border-gray-200">
-      <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>���</span> Pengaturan Password</h4>
+      <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>🔐</span> Pengaturan Password</h4>
       <div class="space-y-4">
        <div><label for="settings-password-new" class="block text-sm font-medium text-gray-700 mb-2">Password Pengaturan</label> <input type="password" id="settings-password-new" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors" placeholder="Masukkan password baru"> <button onclick="handleUpdateSettingsPassword()" class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all text-sm"> 💾 Ubah Password Pengaturan </button>
        </div>
@@ -778,37 +778,37 @@
         const canVote = remainingChoices > 0 && !hasVotedThis;
         
         return `
-          <div class="vote-card bg-white/95 backdrop-blur rounded-2xl overflow-hidden shadow-xl border border-white/50 fade-in" style="animation-delay: ${index * 0.1}s">
-            <div class="bg-gradient-to-r ${style.gradient} p-6 text-center">
-              <div class="w-20 h-20 mx-auto bg-white/30 rounded-full flex items-center justify-center text-4xl mb-3 shadow-inner">
+          <div class="vote-card bg-white/95 backdrop-blur rounded-xl overflow-hidden shadow-lg border border-white/50 fade-in" style="animation-delay: ${index * 0.1}s">
+            <div class="bg-gradient-to-r ${style.gradient} p-3 text-center">
+              <div class="w-12 h-12 mx-auto bg-white/30 rounded-full flex items-center justify-center text-2xl mb-2 shadow-inner">
                 ${style.emoji}
               </div>
-              <span class="text-white/80 text-sm font-medium">Calon ${candidate.id}</span>
+              <span class="text-white/80 text-xs font-medium">Calon ${candidate.id}</span>
             </div>
-            <div class="p-5 text-center">
-              <h3 class="text-xl font-bold text-gray-800 mb-4 truncate" title="${candidate.name}">${candidate.name}</h3>
+            <div class="p-3 text-center">
+              <h3 class="text-sm font-bold text-gray-800 mb-2 truncate" title="${candidate.name}">${candidate.name}</h3>
               ${hasVotedThis ? `
                 <button 
-                  class="w-full py-3 bg-emerald-500 text-white font-semibold rounded-xl shadow-md cursor-default"
+                  class="w-full py-2 bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-md cursor-default"
                   disabled
                   title="Anda sudah memilih kandidat ini"
                 >
-                  ✅ Sudah Dipilih
+                  ✅ Dipilih
                 </button>
               ` : canVote ? `
                 <button 
                   onclick="handleVote('${candidate.id}', this)"
-                  class="w-full py-3 bg-gradient-to-r ${style.gradient} text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-md hover:shadow-lg"
+                  class="w-full py-2 bg-gradient-to-r ${style.gradient} text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-all shadow-md hover:shadow-lg"
                 >
                   🗳️ Vote
                 </button>
               ` : `
                 <button 
-                  class="w-full py-3 bg-gray-400 cursor-not-allowed text-white font-semibold rounded-xl shadow-md"
+                  class="w-full py-2 bg-gray-400 cursor-not-allowed text-white text-xs font-semibold rounded-lg shadow-md"
                   disabled
                   title="${allowMultiple ? 'Batas pilihan tercapai' : 'Anda sudah melakukan voting'}"
                 >
-                  ${allowMultiple ? '🔒 Batas Tercapai' : '��� Sudah Vote'}
+                  ${allowMultiple ? '🔒 Batas' : '✓ Vote'}
                 </button>
               `}
             </div>
@@ -1229,7 +1229,7 @@
       
       const resetBtn = document.getElementById('reset-btn');
       resetBtn.disabled = true;
-      resetBtn.innerHTML = '��� Mereset...';
+      resetBtn.innerHTML = '⏳ Mereset...';
 
       for (const vote of [...votes]) {
         await window.dataSdk.delete(vote);
@@ -1337,5 +1337,5 @@
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84de3427d90d78',t:'MTc3MDE1MjUzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84f68961fb35f2',t:'MTc3MDE1MzUzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
