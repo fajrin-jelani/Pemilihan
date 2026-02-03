@@ -46,7 +46,7 @@
    <header class="text-center mb-8 fade-in relative">
     <div class="absolute top-0 right-0 md:right-4 flex gap-2"><button onclick="showResultsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">📊</span> <span class="hidden sm:inline">Lihat Hasil</span> </button> <button onclick="showSettingsPasswordModal()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white font-semibold rounded-xl transition-all shadow-lg border border-white/30 inline-flex items-center gap-2 text-sm md:text-base"> <span class="text-xl">⚙️</span> <span class="hidden sm:inline">Pengaturan</span> </button>
     </div>
-    <div class="inline-flex items-center gap-3 mb-4"><span class="text-4xl">🗳️</span>
+    <div class="inline-flex items-center gap-3 mb-4"><span class="text-4xl">�����️</span>
      <h1 id="main-title" class="text-3xl md:text-4xl font-extrabold text-white drop-shadow-lg">Pemilihan Ketua</h1>
     </div>
     <p class="text-purple-200 text-lg">Pilih calon favoritmu!</p>
@@ -80,7 +80,7 @@
    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div><!-- Settings Password Modal -->
    <div id="settings-password-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden items-center justify-center">
     <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 w-full">
-     <div class="text-center mb-4"><span class="text-4xl mb-2 block">🔐</span>
+     <div class="text-center mb-4"><span class="text-4xl mb-2 block">��</span>
       <h3 class="text-xl font-bold text-gray-800">Password Pengaturan</h3>
       <p class="text-gray-600 text-sm mt-1">Masukkan password untuk mengakses pengaturan</p>
      </div>
@@ -355,10 +355,25 @@
         defaultConfig,
         onConfigChange: async (newConfig) => {
           config = { ...defaultConfig, ...newConfig };
+          
+          // Update candidate_1 field in edit panel if it was changed
+          if (newConfig.candidate_1 !== undefined) {
+            const candidate1Input = document.getElementById('title-input');
+            if (candidate1Input && candidate1Input.getAttribute('data-field') === 'candidate_1') {
+              candidate1Input.value = newConfig.candidate_1;
+            }
+          }
+          
           loadCandidates();
           renderCandidates();
           renderResults();
           updateTitle();
+          
+          // Refresh settings candidates list if modal is open
+          const settingsModal = document.getElementById('settings-modal');
+          if (settingsModal && !settingsModal.classList.contains('hidden')) {
+            renderSettingsCandidatesList();
+          }
         },
         mapToCapabilities: (cfg) => ({
           recolorables: [
@@ -1109,5 +1124,5 @@
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c8485e0f50cfdc0',t:'MTc3MDE0ODkxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c848c23501bfdc0',t:'MTc3MDE0OTE3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
