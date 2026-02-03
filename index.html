@@ -73,8 +73,10 @@
     <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><span>📊</span> Hasil Voting Real-time</h2>
     <div id="results-container" class="space-y-4"><!-- Results will be rendered here -->
     </div>
-    <div class="mt-6 pt-4 border-t border-white/20 flex justify-between items-center">
-     <p class="text-purple-200">Total suara: <span id="total-votes" class="font-bold text-white">0</span></p><button id="reset-btn" onclick="showConfirmModal()" class="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg font-medium transition-all text-sm hidden"> 🔄 Reset Voting </button>
+    <div class="mt-6 pt-4 border-t border-white/20">
+     <div class="flex justify-between items-center mb-3">
+      <p class="text-purple-200">Total suara: <span id="total-votes" class="font-bold text-white">0</span></p><button id="reset-btn" onclick="showConfirmModal()" class="px-4 py-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg font-medium transition-all text-sm hidden"> 🔄 Reset Voting </button>
+     </div><button id="reset-all-btn" onclick="showConfirmResetAllModal()" class="w-full px-4 py-2 bg-red-600/80 hover:bg-red-700 text-white rounded-lg font-medium transition-all text-sm flex items-center justify-center gap-2"> <span>🗑️</span> Reset Semua Data (Voting + Pengaturan) </button>
     </div>
    </div><!-- Toast Container -->
    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div><!-- Settings Password Modal -->
@@ -107,6 +109,21 @@
      <h3 class="text-xl font-bold text-gray-800 mb-2">Reset Voting?</h3>
      <p class="text-gray-600 mb-6">Semua suara akan dihapus. Tindakan ini tidak dapat dibatalkan.</p>
      <div class="flex gap-3 justify-center"><button id="cancel-reset" onclick="hideConfirmModal()" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-all"> Batal </button> <button id="confirm-reset" onclick="handleReset()" class="px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all"> Ya, Reset </button>
+     </div>
+    </div>
+   </div><!-- Confirm Reset All Modal -->
+   <div id="confirm-reset-all-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden items-center justify-center">
+    <div class="bg-white rounded-2xl p-6 max-w-sm mx-4 text-center"><span class="text-5xl mb-4 block">🔥</span>
+     <h3 class="text-xl font-bold text-gray-800 mb-2">Reset SEMUA Data?</h3>
+     <p class="text-gray-600 mb-2">Ini akan menghapus:</p>
+     <ul class="text-gray-600 text-sm mb-6 space-y-1">
+      <li>✓ Semua suara voting</li>
+      <li>✓ Semua password</li>
+      <li>✓ Semua pengaturan kandidat</li>
+      <li>✓ Semua konfigurasi aplikasi</li>
+     </ul>
+     <p class="text-red-600 font-semibold mb-6">⚠️ Tindakan ini tidak dapat dibatalkan!</p>
+     <div class="flex gap-3 justify-center"><button onclick="hideConfirmResetAllModal()" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-all"> Batal </button> <button onclick="handleResetAll()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all"> Ya, Hapus Semua </button>
      </div>
     </div>
    </div><!-- Settings Modal -->
@@ -774,7 +791,7 @@
                 </button>
               ` : canVote ? `
                 <button 
-                  onclick="handleVote('${candidate.id}')"
+                  onclick="handleVote('${candidate.id}', this)"
                   class="w-full py-3 bg-gradient-to-r ${style.gradient} text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-md hover:shadow-lg"
                 >
                   🗳️ Vote
@@ -869,7 +886,7 @@
     }
 
     // Handle vote
-    async function handleVote(candidateId) {
+    async function handleVote(candidateId, buttonElement) {
       if (!isRegistered || !currentVoterName) {
         showToast('Silakan masukkan nama terlebih dahulu!', 'warning');
         return;
@@ -899,10 +916,9 @@
       }
 
       // Disable button and show loading
-      const buttonEl = event.target;
-      const originalHTML = buttonEl.innerHTML;
-      buttonEl.disabled = true;
-      buttonEl.innerHTML = '⏳ Memproses...';
+      const originalHTML = buttonElement.innerHTML;
+      buttonElement.disabled = true;
+      buttonElement.innerHTML = '⏳ Memproses...';
 
       const voterData = deviceId + '|' + currentVoterName;
 
@@ -917,8 +933,8 @@
         showToast(`Suara untuk ${getCandidateName(candidateId)} berhasil dicatat!`);
       } else {
         showToast('Gagal mencatat suara. Silakan coba lagi.', 'error');
-        buttonEl.disabled = false;
-        buttonEl.innerHTML = originalHTML;
+        buttonElement.disabled = false;
+        buttonElement.innerHTML = originalHTML;
       }
     }
 
@@ -1235,6 +1251,78 @@
       resetBtn.innerHTML = '🔄 Reset Voting';
     }
 
+    // Show confirm reset all modal
+    function showConfirmResetAllModal() {
+      const modal = document.getElementById('confirm-reset-all-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    // Hide confirm reset all modal
+    function hideConfirmResetAllModal() {
+      const modal = document.getElementById('confirm-reset-all-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Handle reset all data
+    async function handleResetAll() {
+      if (isResetting) return;
+      
+      isResetting = true;
+      hideConfirmResetAllModal();
+      
+      const resetAllBtn = document.getElementById('reset-all-btn');
+      resetAllBtn.disabled = true;
+      resetAllBtn.innerHTML = '<span>⏳</span> Menghapus Semua Data...';
+
+      // Delete all votes
+      for (const vote of [...votes]) {
+        await window.dataSdk.delete(vote);
+      }
+
+      // Delete all password records
+      for (const passwordRecord of [...passwordRecords]) {
+        await window.dataSdk.delete(passwordRecord);
+      }
+
+      // Delete all config records
+      for (const configRecord of [...configRecords]) {
+        await window.dataSdk.delete(configRecord);
+      }
+
+      // Reset local storage
+      localStorage.removeItem('voting_device_id');
+      localStorage.removeItem('current_voter_name');
+      
+      // Reset state
+      hasVoted = false;
+      deviceId = getDeviceId();
+      currentVoterName = '';
+      isRegistered = false;
+      config = { ...defaultConfig };
+      
+      // Reset to registration card
+      const registrationCard = document.getElementById('voter-registration-card');
+      const votingSection = document.getElementById('voting-section');
+      const registrationInput = document.getElementById('registration-name-input');
+      
+      votingSection.classList.add('hidden');
+      registrationCard.classList.remove('hidden');
+      registrationInput.value = '';
+
+      // Reload candidates and UI
+      loadCandidates();
+      renderCandidates();
+      renderResults();
+      updateTitle();
+
+      showToast('Semua data telah dihapus!');
+      isResetting = false;
+      resetAllBtn.disabled = false;
+      resetAllBtn.innerHTML = '<span>🗑️</span> Reset Semua Data (Voting + Pengaturan)';
+    }
+
     // Initial render
     deviceId = getDeviceId();
     loadCandidates();
@@ -1243,5 +1331,5 @@
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84aa00f19a6d3b',t:'MTc3MDE1MDM5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84b68d05046d3b',t:'MTc3MDE1MDkwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
