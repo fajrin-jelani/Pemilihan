@@ -122,7 +122,7 @@
       </form>
      </div><!-- Password Settings Section -->
      <div class="mb-6 pb-6 border-b border-gray-200">
-      <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>🔐</span> Pengaturan Password</h4>
+      <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>���</span> Pengaturan Password</h4>
       <div class="space-y-4">
        <div><label for="settings-password-new" class="block text-sm font-medium text-gray-700 mb-2">Password Pengaturan</label> <input type="password" id="settings-password-new" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors" placeholder="Masukkan password baru"> <button onclick="handleUpdateSettingsPassword()" class="mt-2 w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all text-sm"> 💾 Ubah Password Pengaturan </button>
        </div>
@@ -893,14 +893,33 @@
         return;
       }
 
-      if (votes.length >= 999) {
+      if (votes.length + passwordRecords.length + configRecords.length >= 999) {
         showToast('Batas maksimum 999 suara telah tercapai!', 'warning');
         return;
       }
 
-      // Vote directly using current voter name
-      currentVotingCandidateId = candidateId;
-      await submitVote();
+      // Disable button and show loading
+      const buttonEl = event.target;
+      const originalHTML = buttonEl.innerHTML;
+      buttonEl.disabled = true;
+      buttonEl.innerHTML = '⏳ Memproses...';
+
+      const voterData = deviceId + '|' + currentVoterName;
+
+      const result = await window.dataSdk.create({
+        candidate_id: candidateId,
+        voter_name: voterData,
+        voted_at: new Date().toISOString()
+      });
+
+      if (result.isOk) {
+        hasVoted = true;
+        showToast(`Suara untuk ${getCandidateName(candidateId)} berhasil dicatat!`);
+      } else {
+        showToast('Gagal mencatat suara. Silakan coba lagi.', 'error');
+        buttonEl.disabled = false;
+        buttonEl.innerHTML = originalHTML;
+      }
     }
 
     // Submit vote
@@ -1188,7 +1207,7 @@
       
       const resetBtn = document.getElementById('reset-btn');
       resetBtn.disabled = true;
-      resetBtn.innerHTML = '⏳ Mereset...';
+      resetBtn.innerHTML = '��� Mereset...';
 
       for (const vote of [...votes]) {
         await window.dataSdk.delete(vote);
@@ -1224,5 +1243,5 @@
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c849cefe00922a1',t:'MTc3MDE0OTg2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c84aa00f19a6d3b',t:'MTc3MDE1MDM5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
