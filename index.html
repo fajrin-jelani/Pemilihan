@@ -179,7 +179,27 @@
     // Default configuration
     const defaultConfig = {
       voting_title: 'Pemilihan Ketua',
-      candidate_1: 'Kandidat 1',
+      candidate_1: 'M.FACHRUL',
+      candidate_2: 'andri tobing',
+      candidate_3: 'LA HARDIN',
+      candidate_4: 'YOGA PRADANA',
+      candidate_5: 'HAMI',
+      candidate_6: 'M. PUTRA',
+      candidate_7: 'Muhibbillah',
+      candidate_8: 'M. SAFARUDIN',
+      candidate_9: 'WAHYU R',
+      candidate_10: 'REGA APDILLAH',
+      candidate_11: 'M. HUSAIRI RIFAI',
+      candidate_12: 'KASMURI',
+      candidate_13: 'Adhit prastya',
+      candidate_14: 'AKBAR',
+      candidate_15: 'SYULFACKAR',
+      candidate_16: 'Syahrul fitri',
+      candidate_17: 'm. arya putra',
+      candidate_18: 'DION',
+      candidate_19: 'sulaiman',
+      candidate_20: 'TRY SANDY',
+      candidate_21: 'mychel jp',
       allow_multiple_votes: false,
       max_choices: 2,
       background_color: '#4c1d95',
@@ -200,7 +220,18 @@
       { emoji: '👤', gradient: 'from-yellow-500 to-orange-400' },
       { emoji: '👤', gradient: 'from-teal-500 to-cyan-400' },
       { emoji: '👤', gradient: 'from-indigo-500 to-blue-400' },
-      { emoji: '👤', gradient: 'from-lime-500 to-green-400' }
+      { emoji: '👤', gradient: 'from-lime-500 to-green-400' },
+      { emoji: '👤', gradient: 'from-fuchsia-500 to-pink-400' },
+      { emoji: '👤', gradient: 'from-sky-500 to-blue-400' },
+      { emoji: '👤', gradient: 'from-green-500 to-emerald-400' },
+      { emoji: '👤', gradient: 'from-amber-500 to-yellow-400' },
+      { emoji: '👤', gradient: 'from-rose-500 to-red-400' },
+      { emoji: '👤', gradient: 'from-purple-500 to-violet-400' },
+      { emoji: '👤', gradient: 'from-cyan-500 to-teal-400' },
+      { emoji: '👤', gradient: 'from-blue-600 to-indigo-400' },
+      { emoji: '👤', gradient: 'from-emerald-600 to-green-400' },
+      { emoji: '👤', gradient: 'from-orange-600 to-red-400' },
+      { emoji: '👤', gradient: 'from-pink-600 to-fuchsia-400' }
     ];
 
     // State
@@ -213,6 +244,7 @@
     let hasVoted = false;
     let deviceId = '';
     let passwordRecords = [];
+    let configRecords = [];
     let isResultsVisible = false;
     let currentVoterName = '';
     let isRegistered = false;
@@ -349,6 +381,58 @@
       }
     }
 
+    // Load config from database
+    function loadConfigFromDatabase() {
+      if (configRecords.length === 0) return;
+      
+      const dbConfig = {};
+      configRecords.forEach(record => {
+        if (record.config_key && record.config_value !== undefined) {
+          // Parse boolean and number values
+          let value = record.config_value;
+          if (value === 'true') value = true;
+          else if (value === 'false') value = false;
+          else if (!isNaN(value) && value !== '') value = parseFloat(value);
+          
+          dbConfig[record.config_key] = value;
+        }
+      });
+      
+      // Merge with current config
+      config = { ...defaultConfig, ...dbConfig };
+      
+      // Update UI
+      loadCandidates();
+      renderCandidates();
+      renderResults();
+      updateTitle();
+    }
+
+    // Save config to database
+    async function saveConfigToDatabase(key, value) {
+      const existingRecord = configRecords.find(r => r.config_key === key);
+      
+      // Convert value to string for storage
+      const stringValue = String(value);
+      
+      if (existingRecord) {
+        const updatedRecord = { ...existingRecord, config_value: stringValue };
+        const result = await window.dataSdk.update(updatedRecord);
+        return result.isOk;
+      } else {
+        if (votes.length + passwordRecords.length + configRecords.length >= 999) {
+          showToast('Batas maksimum data tercapai!', 'warning');
+          return false;
+        }
+        const result = await window.dataSdk.create({
+          config_key: key,
+          config_value: stringValue,
+          voted_at: new Date().toISOString()
+        });
+        return result.isOk;
+      }
+    }
+
     // Initialize Element SDK
     if (window.elementSdk) {
       window.elementSdk.init({
@@ -417,9 +501,14 @@
         if (!data || data.length === 0) {
           votes = [];
           passwordRecords = [];
+          configRecords = [];
         } else {
-          votes = data.filter(record => record.candidate_id && !record.settings_password && !record.results_password);
+          votes = data.filter(record => record.candidate_id && !record.settings_password && !record.results_password && !record.config_key);
           passwordRecords = data.filter(record => record.settings_password || record.results_password);
+          configRecords = data.filter(record => record.config_key);
+          
+          // Load config from database
+          loadConfigFromDatabase();
         }
         
         checkIfVoted();
@@ -887,14 +976,16 @@
         maxChoicesSection.classList.add('hidden');
       }
       
-      window.elementSdk.setConfig({ allow_multiple_votes: isChecked });
+      config.allow_multiple_votes = isChecked;
+      saveConfigToDatabase('allow_multiple_votes', isChecked);
       showToast(isChecked ? 'Mode pilihan banyak diaktifkan!' : 'Mode pilihan tunggal diaktifkan!');
     }
 
     // Handle max choices change
     function handleMaxChoicesChange(value) {
       const maxChoices = parseInt(value);
-      window.elementSdk.setConfig({ max_choices: maxChoices });
+      config.max_choices = maxChoices;
+      saveConfigToDatabase('max_choices', maxChoices);
       showToast(`Maksimum pilihan diubah menjadi ${maxChoices} kandidat`);
     }
 
@@ -954,7 +1045,9 @@
         return;
       }
 
-      window.elementSdk.setConfig({ voting_title: newTitle });
+      config.voting_title = newTitle;
+      saveConfigToDatabase('voting_title', newTitle);
+      updateTitle();
       showToast('Judul berhasil diubah!');
     }
 
@@ -1005,10 +1098,13 @@
       }
 
       const configKey = `candidate_${currentEditingCandidateId}`;
-      const updateObj = {};
-      updateObj[configKey] = newName;
+      config[configKey] = newName;
+      saveConfigToDatabase(configKey, newName);
       
-      window.elementSdk.setConfig(updateObj);
+      loadCandidates();
+      renderCandidates();
+      renderResults();
+      
       showToast(`Nama kandidat berhasil diubah!`);
       hideEditModal();
     }
@@ -1051,10 +1147,12 @@
 
       let nextId = candidates.length + 1;
       const configKey = `candidate_${nextId}`;
-      const updateObj = {};
-      updateObj[configKey] = newName;
+      config[configKey] = newName;
+      saveConfigToDatabase(configKey, newName);
       
-      window.elementSdk.setConfig(updateObj);
+      loadCandidates();
+      renderCandidates();
+      
       showToast(`Kandidat baru "${newName}" berhasil ditambahkan!`);
       hideAddCandidateModal();
     }
@@ -1070,10 +1168,12 @@
       }
 
       const configKey = `candidate_${candidateId}`;
-      const updateObj = {};
-      updateObj[configKey] = '';
+      config[configKey] = '';
+      saveConfigToDatabase(configKey, '');
       
-      window.elementSdk.setConfig(updateObj);
+      loadCandidates();
+      renderCandidates();
+      
       showToast(`Kandidat "${candidateName}" berhasil dihapus!`);
       
       setTimeout(() => renderSettingsCandidatesList(), 300);
@@ -1124,5 +1224,5 @@
     renderResults();
     updateTitle();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c848c23501bfdc0',t:'MTc3MDE0OTE3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c849cefe00922a1',t:'MTc3MDE0OTg2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
